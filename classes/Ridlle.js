@@ -15,4 +15,7 @@ export default class Riddle {
       limitMessage: "Incorrect. Try again!",
     });
   }
+
+  static fromObject = (obj) =>
+    new Riddle(obj.id, obj.name, obj.taskDescription, obj.correctAnswer);
 }
