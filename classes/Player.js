@@ -3,4 +3,6 @@ export default class Player {
     this.name = name;
     this.times = Array.isArray(times) ? times.filter(Number.isFinite) : []; // durations per riddle
   }
+
+  static fromObject = (obj) => new Riddle(obj.name, obj.times);
 }
