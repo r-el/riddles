@@ -1,6 +1,7 @@
 {
   "name": "riddles",
   "version": "1.0.0",
+  "type": "module",
   "description": "Riddles project",
   "main": "app.js",
   "scripts": {
