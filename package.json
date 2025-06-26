@@ -6,7 +6,12 @@
   "scripts": {
     "start": "node app.js"
   },
-  "keywords": ["riddles"],
+  "keywords": [
+    "riddles"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
 }
