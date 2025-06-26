@@ -1,0 +1,12 @@
+{
+  "name": "riddles",
+  "version": "1.0.0",
+  "description": "Riddles project",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": ["riddles"],
+  "author": "",
+  "license": "ISC"
+}
