@@ -8,6 +8,15 @@ export default class Player {
     this.times = Array.isArray(times) ? times.filter(Number.isFinite) : []; // MS durations per riddle
   }
 
+  recordTime(start, end) {
+    if (!(start instanceof Date) || !(end instanceof Date)) return;
+
+    const duration = end.getTime() - start;
+    if (Number.isFinite(duration) && duration >= 0) {
+      this.times.push(duration);
+    }
+  }
+
   // display total and average time
   showStats() {
     const count = this.times.length;
