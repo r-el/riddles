@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dayjs": "^1.11.13",
+    "dayjs-plugin-duration": "^0.0.1-security",
     "readline-sync": "^1.4.10"
   }
 }
