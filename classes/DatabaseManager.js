@@ -38,4 +38,8 @@ export default class DatabaseManager {
   updatePlayer(id, updates) {
     return this.playersDB.update(id, updates);
   }
+  async findPlayerByName(name) {
+    const players = await this.playersDB.read();
+    return players.find(p => p.name.toLowerCase() === name.toLowerCase());
+  }
 }
