@@ -5,7 +5,6 @@ import readline from "readline-sync";
 
 export default class GameManager {
   constructor() {
-    // The player object will be initialized when the game starts
     this.player = null;
     this.db = new DatabaseManager();
   }
@@ -66,7 +65,6 @@ export default class GameManager {
     console.log("Riddle created successfully!");
   }
 
-
   async readAllRiddles() {
     const riddles = await this.db.getAllRiddles();
     if (!riddles.length) {
@@ -97,26 +95,20 @@ export default class GameManager {
     console.log("Riddle updated successfully!");
   }
 
-      const riddleObj = AllRiddles[i];
-
-      // Create a Riddle instance from the riddle object
-      const riddle = Riddle.fromObject(riddleObj);
-
-      console.log(`Riddle ${i + 1}: ${riddle.name}`);
-
-      // Record the time before and after asking the riddle
-      const start = new Date();
-      riddle.ask();
-      const end = new Date();
-
-      // Save the time taken to answer
-      this.player.recordTime(start, end);
-
-      console.log("Correct!\n");
+  async deleteRiddle() {
+    const id = readline.questionInt("Enter riddle ID to delete: ");
+    const riddles = await this.db.getAllRiddles();
+    const riddle = riddles.find((r) => r.id === id);
+    if (!riddle) {
+      console.log("Riddle not found.");
+      return;
     }
-
-    // Show stats
-    console.log(`Great job, ${playerName}!`);
-    this.player.showStats();
+    const confirm = readline.question("Are you sure you want to delete this riddle? (y/n): ");
+    if (confirm.toLowerCase() === "y") {
+      await this.db.deleteRiddle(id);
+      console.log("Riddle deleted successfully!");
+    } else {
+      console.log("Delete cancelled.");
+    }
   }
 }
