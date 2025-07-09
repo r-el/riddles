@@ -79,6 +79,24 @@ export default class GameManager {
       );
     });
   }
+
+  async updateRiddle() {
+    const id = readline.questionInt("Enter riddle ID to update: ");
+    const riddles = await this.db.getAllRiddles();
+    const riddle = riddles.find((r) => r.id === id);
+    if (!riddle) {
+      console.log("Riddle not found.");
+      return;
+    }
+    const name = readline.question(`Enter new name [${riddle.name}]: `) || riddle.name;
+    const taskDescription =
+      readline.question(`Enter new description [${riddle.taskDescription}]: `) || riddle.taskDescription;
+    const correctAnswer =
+      readline.question(`Enter new answer [${riddle.correctAnswer}]: `) || riddle.correctAnswer;
+    await this.db.updateRiddle(id, { name, taskDescription, correctAnswer });
+    console.log("Riddle updated successfully!");
+  }
+
       const riddleObj = AllRiddles[i];
 
       // Create a Riddle instance from the riddle object
