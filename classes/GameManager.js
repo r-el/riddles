@@ -58,6 +58,13 @@ export default class GameManager {
     }
   }
 
+  async createRiddle() {
+    const name = readline.question("Enter riddle name: ");
+    const taskDescription = readline.question("Enter description: ");
+    const correctAnswer = readline.question("Enter correct answer: ");
+    await this.db.createRiddle({ name, taskDescription, correctAnswer });
+    console.log("Riddle created successfully!");
+  }
       const riddleObj = AllRiddles[i];
 
       // Create a Riddle instance from the riddle object
