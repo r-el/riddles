@@ -15,6 +15,7 @@
   "dependencies": {
     "dayjs": "^1.11.13",
     "dayjs-plugin-duration": "^0.0.1-security",
+    "json-file-crud": "^1.2.0",
     "readline-sync": "^1.4.10"
   }
 }
