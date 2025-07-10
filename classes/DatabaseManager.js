@@ -16,30 +16,65 @@ export default class DatabaseManager {
 
   // Riddle CRUD
   getAllRiddles() {
-    return this.riddlesDB.read();
+    return new Promise((resolve, reject) => {
+      this.riddlesDB.readAll((err, items) => {
+        if (err) reject(err);
+        else resolve(items || []);
+      });
+    });
   }
   createRiddle(riddleData) {
-    return this.riddlesDB.create(riddleData);
+    return new Promise((resolve, reject) => {
+      this.riddlesDB.create(riddleData, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
   }
   updateRiddle(id, updates) {
-    return this.riddlesDB.update(id, updates);
+    return new Promise((resolve, reject) => {
+      this.riddlesDB.update(id, updates, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
   }
   deleteRiddle(id) {
-    return this.riddlesDB.delete(id);
+    return new Promise((resolve, reject) => {
+      this.riddlesDB.delete(id, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
   }
 
   // Player CRUD
   getAllPlayers() {
-    return this.playersDB.read();
+    return new Promise((resolve, reject) => {
+      this.playersDB.readAll((err, items) => {
+        if (err) reject(err);
+        else resolve(items || []);
+      });
+    });
   }
   createPlayer(playerData) {
-    return this.playersDB.create(playerData);
+    return new Promise((resolve, reject) => {
+      this.playersDB.create(playerData, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
   }
   updatePlayer(id, updates) {
-    return this.playersDB.update(id, updates);
+    return new Promise((resolve, reject) => {
+      this.playersDB.update(id, updates, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
   }
   async findPlayerByName(name) {
-    const players = await this.playersDB.read();
+    const players = await this.getAllPlayers();
     return players.find(p => p.name.toLowerCase() === name.toLowerCase());
   }
 }
