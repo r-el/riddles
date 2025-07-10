@@ -109,8 +109,7 @@ export default class GameManager {
           await this.deleteRiddle();
           break;
         case "6":
-          // TODO: Implement this. this.showLeaderboard();
-          console.log("Leaderboard not implemented yet.");
+          await this.showLeaderboard();
           break;
         case "7":
           console.log("Goodbye!");
@@ -182,4 +181,23 @@ export default class GameManager {
     }
   }
   // #endregion Riddle CRUD
+
+  // #region Leaderboard
+  // Show leaderboard of players with best times
+  async showLeaderboard() {
+    const players = await this.db.getAllPlayers();
+    // Filter only players with a lowestTime value
+    const filtered = players.filter((p) => p.lowestTime != null);
+    if (!filtered.length) {
+      console.log("No results yet. No player that completed the game.");
+      return;
+    }
+    // Sort lowestTime by ASC
+    filtered.sort((a, b) => a.lowestTime - b.lowestTime);
+    console.log("\nLeaderboard (Top 10):");
+    filtered.slice(0, 10).forEach((p, i) => {
+      console.log(`${i + 1}. ${p.name} - ${(p.lowestTime / 1000).toFixed(2)} seconds`);
+    });
+  }
+  // #endregion Leaderboard
 }
