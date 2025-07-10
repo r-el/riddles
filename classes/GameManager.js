@@ -31,11 +31,11 @@ export default class GameManager {
   // Get or create player
   async _getOrCreatePlayer() {
     const playerName = readline.question("What is your name? ");
-    let player = await this.db.findPlayerByName(playerName);
+    let player = await PlayersApiService.getAllPlayers().then(players => players.find(p => p.name.toLowerCase() === playerName.toLowerCase()));
     if (player) {
       return player;
     } else {
-      const newPlayer = await this.db.createPlayer({ name: playerName });
+      const newPlayer = await PlayersApiService.addPlayer({ name: playerName });
       console.log(`Welcome, ${playerName}! Good luck!`);
       return { ...newPlayer, lowestTime: null };
     }
@@ -71,7 +71,7 @@ export default class GameManager {
   // Update player's best time if needed
   async _updatePlayerBestTime(player, totalTime) {
     if (!player.lowestTime || totalTime < player.lowestTime) {
-      await this.db.updatePlayer(player.id, { lowestTime: totalTime });
+      await PlayersApiService.updatePlayer({ id: player.id, lowestTime: totalTime });
       console.log("New record! Time updated.");
     } else {
       console.log(`Your best time remains: ${Math.round(player.lowestTime / 1000)} seconds`);
@@ -185,7 +185,7 @@ export default class GameManager {
   // #region Leaderboard
   // Show leaderboard of players with best times
   async showLeaderboard() {
-    const players = await this.db.getAllPlayers();
+    const players = await PlayersApiService.getAllPlayers();
     // Filter only players with a lowestTime value
     const filtered = players.filter((p) => p.lowestTime != null);
     if (!filtered.length) {
