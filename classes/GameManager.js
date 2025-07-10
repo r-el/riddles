@@ -194,7 +194,7 @@ export default class GameManager {
     }
     // Sort lowestTime by ASC
     filtered.sort((a, b) => a.lowestTime - b.lowestTime);
-    console.log("\nLeaderboard (Top 10):");
+    console.log("\n🏆 Leaderboard (Top 10):");
     filtered.slice(0, 10).forEach((p, i) => {
       console.log(`${i + 1}. ${p.name} - ${(p.lowestTime / 1000).toFixed(2)} seconds`);
     });
