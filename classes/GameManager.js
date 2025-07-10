@@ -9,7 +9,7 @@ export default class GameManager {
     this.db = new DatabaseManager();
   }
 
-  // The player object will be initialized when the game starts
+  // Initialize the player object
   initPlayer() {
     const playerName = readline.question("What is your name? ");
     this.player = new Player(playerName);
@@ -57,6 +57,7 @@ export default class GameManager {
     }
   }
 
+  // Create a new riddle and save it to database
   async createRiddle() {
     const name = readline.question("Enter riddle name: ");
     const taskDescription = readline.question("Enter description: ");
@@ -65,6 +66,7 @@ export default class GameManager {
     console.log("Riddle created successfully!");
   }
 
+  // Show all riddles from the database
   async readAllRiddles() {
     const riddles = await this.db.getAllRiddles();
     if (!riddles.length) {
@@ -78,6 +80,7 @@ export default class GameManager {
     });
   }
 
+  // Update an existing riddle by ID
   async updateRiddle() {
     const id = readline.questionInt("Enter riddle ID to update: ");
     const riddles = await this.db.getAllRiddles();
@@ -95,6 +98,7 @@ export default class GameManager {
     console.log("Riddle updated successfully!");
   }
 
+  // Delete a riddle by ID
   async deleteRiddle() {
     const id = readline.questionInt("Enter riddle ID to delete: ");
     const riddles = await this.db.getAllRiddles();
