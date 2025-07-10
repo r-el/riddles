@@ -1,8 +1,8 @@
 import JsonFileCrud from 'json-file-crud';
 import path from 'path';
 
-const riddlesPath = path.resolve('./data/riddles.text');
-const playersPath = path.resolve('./data/players.text');
+const riddlesPath = path.resolve('./data/riddles.json'); // Can be also a txt file
+const playersPath = path.resolve('./data/players.json'); // Can be also a txt file
 
 /**
  * DatabaseManager class to handle CRUD operations for riddles and players.
