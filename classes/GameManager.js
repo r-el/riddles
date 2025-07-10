@@ -9,13 +9,78 @@ export default class GameManager {
     this.db = new DatabaseManager();
   }
 
-  // Initialize the player object
-  initPlayer() {
+  // #region Game Flow
+  /*
+   * Main game logic
+   * handles player, riddles, and timing
+   */
+  async playGame() {
+    const player = await this._getOrCreatePlayer();
+    this._showPlayerBestTime(player);
+    const riddles = await this.db.getAllRiddles();
+    if (!riddles.length) {
+      console.log("No riddles found. Add riddles first!");
+      return;
+    }
+    const totalTime = await this._askAllRiddles(riddles);
+    await this._updatePlayerBestTime(player, totalTime);
+  }
+  // #endregion Game Flow
+
+  // #region Player Helpers
+  // Get or create player
+  async _getOrCreatePlayer() {
     const playerName = readline.question("What is your name? ");
-    this.player = new Player(playerName);
-    return playerName;
+    let player = await this.db.findPlayerByName(playerName);
+    if (player) {
+      return player;
+    } else {
+      const newPlayer = await this.db.createPlayer({ name: playerName });
+      console.log(`Welcome, ${playerName}! Good luck!`);
+      return { ...newPlayer, lowestTime: null };
+    }
   }
 
+  // Show player's best time
+  _showPlayerBestTime(player) {
+    if (player.lowestTime) {
+      console.log(`Hi ${player.name}! Your previous lowest time was ${player.lowestTime / 1000} seconds.`);
+    } else {
+      console.log(`Hi ${player.name}! No previous time recorded.`);
+    }
+  }
+  // #endregion Player Helpers
+
+  // #region Riddle Helpers
+  // Ask all riddles and return total time
+  async _askAllRiddles(riddles) {
+    let totalTime = 0;
+    for (let i = 0; i < riddles.length; i++) {
+      const riddle = Riddle.fromObject(riddles[i]);
+      console.log(`Riddle ${i + 1}: ${riddle.name}`);
+      const start = new Date();
+      riddle.ask();
+      const end = new Date();
+      totalTime += end - start;
+      console.log("Correct!\n");
+    }
+    console.log(`Great job! Your time: ${Math.round(totalTime / 1000)} seconds`);
+    return totalTime;
+  }
+
+  // Update player's best time if needed
+  async _updatePlayerBestTime(player, totalTime) {
+    if (!player.lowestTime || totalTime < player.lowestTime) {
+      await this.db.updatePlayer(player.id, { lowestTime: totalTime });
+      console.log("New record! Time updated.");
+    } else {
+      console.log(`Your best time remains: ${Math.round(player.lowestTime / 1000)} seconds`);
+    }
+  }
+  // #endregion Riddle Helpers
+
+  // #region Main Menu
+  // Main menu for the game
   async showMainMenu() {
     while (true) {
       console.log("\nWhat do you want to do?");
@@ -29,8 +94,7 @@ export default class GameManager {
       const choice = readline.question("Enter your choice: ");
       switch (choice) {
         case "1":
-          // TODO: Implement this. this.playGame();
-          console.log("Game not implemented yet.");
+          await this.playGame();
           break;
         case "2":
           await this.createRiddle();
@@ -56,7 +120,9 @@ export default class GameManager {
       }
     }
   }
+  // #endregion Main Menu
 
+  // #region Riddle CRUD
   // Create a new riddle and save it to database
   async createRiddle() {
     const name = readline.question("Enter riddle name: ");
@@ -115,4 +181,5 @@ export default class GameManager {
       console.log("Delete cancelled.");
     }
   }
+  // #endregion Riddle CRUD
 }
