@@ -50,4 +50,14 @@ export class Player {
     return player;
   }
 
+  /**
+   * Convert an array of API responses to Player instances
+   * @param {Array} items - Array of raw player data
+   * @returns {Array<Player>} Array of Player instances
+   */
+  static fromApiResponseArray(items) {
+    if (!Array.isArray(items)) return [];
+    return items.map((item) => Player.fromApiResponse(item));
+  }
+
 }
