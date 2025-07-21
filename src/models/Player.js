@@ -60,4 +60,14 @@ export class Player {
     return items.map((item) => Player.fromApiResponse(item));
   }
 
+  /**
+   * Convert to a plain object for API submission
+   * @returns {Object} Plain object representation
+   */
+  toApiSubmission() {
+    return {
+      username: this.username,
+    };
+  }
+
 }
