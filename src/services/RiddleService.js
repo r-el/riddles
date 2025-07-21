@@ -119,4 +119,27 @@ export class RiddleService {
       throw error;
     }
   }
+
+  /**
+   * Check if a player's answer is correct
+   * @param {string} riddleId - Riddle ID
+   * @param {string} answer - Player's answer attempt
+   * @returns {Promise<Object>} Result with correct answer and match status
+   */
+  async checkAnswer(riddleId, answer) {
+    try {
+      const riddle = await this.getRiddleById(riddleId);
+      const isCorrect = riddle.isCorrectAnswer(answer);
+
+      return {
+        isCorrect,
+        correctAnswer: riddle.answer,
+        providedAnswer: answer,
+        riddleId: riddle.id,
+      };
+    } catch (error) {
+      console.error("Error checking answer:", error);
+      throw error;
+    }
+  }
 }
