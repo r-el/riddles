@@ -19,4 +19,13 @@ export class Riddle {
     this.createdAt = data.createdAt ? new Date(data.createdAt) : null;
   }
 
+  /**
+   * Convert a server response to a Riddle instance
+   * @param {Object} data - Raw riddle data from API
+   * @returns {Riddle} A new Riddle instance
+   */
+  static fromApiResponse(data) {
+    if (!data) return null;
+    return new Riddle(data);
+  }
 }
