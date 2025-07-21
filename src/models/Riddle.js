@@ -74,4 +74,28 @@ export class Riddle {
     return levels[this.level.toLowerCase()] || this.level;
   }
 
+  /**
+   * Validate the riddle data
+   * @returns {Object} Validation result with errors
+   */
+  validate() {
+    const errors = {};
+
+    if (!this.question || this.question.trim() === "") {
+      errors.question = "Question is required";
+    }
+
+    if (!this.answer || this.answer.trim() === "") {
+      errors.answer = "Answer is required";
+    }
+
+    if (this.level && !["easy", "medium", "hard"].includes(this.level.toLowerCase())) {
+      errors.level = "Level must be easy, medium, or hard";
+    }
+
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors,
+    };
+  }
 }
