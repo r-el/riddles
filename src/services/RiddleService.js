@@ -23,4 +23,17 @@ export class RiddleService {
     }
   }
 
+  /**
+   * Get a random riddle
+   * @returns {Promise<Riddle>} A random riddle
+   */
+  async getRandomRiddle() {
+    try {
+      const response = await RiddlesAPI.getRandom();
+      return Riddle.fromApiResponse(response.data);
+    } catch (error) {
+      console.error("Error fetching random riddle:", error);
+      throw error;
+    }
+  }
 }
