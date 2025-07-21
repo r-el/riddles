@@ -85,4 +85,26 @@ export const RiddlesAPI = {
 
     return response.json();
   },
+
+  /**
+   * Update an existing riddle
+   * @param {string} id - Riddle ID
+   * @param {Object} updates - Fields to update
+   * @returns {Promise<Object>} Updated riddle
+   */
+  async update(id, updates) {
+    if (!id) throw new Error("Riddle ID is required");
+
+    const response = await fetch(getApiUrl(`/riddles/${id}`), {
+      method: "PUT",
+      headers: API_CONFIG.HEADERS,
+      body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update riddle: ${response.status}`);
+    }
+
+    return response.json();
+  },
 };
