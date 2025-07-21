@@ -66,4 +66,23 @@ export const RiddlesAPI = {
 
     return response.json();
   },
+
+  /**
+   * Create a new riddle
+   * @param {Object} riddleData - The riddle to create
+   * @returns {Promise<Object>} Created riddle
+   */
+  async create(riddleData) {
+    const response = await fetch(getApiUrl("/riddles"), {
+      method: "POST",
+      headers: API_CONFIG.HEADERS,
+      body: JSON.stringify(riddleData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create riddle: ${response.status}`);
+    }
+
+    return response.json();
+  },
 };
