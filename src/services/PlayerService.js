@@ -78,4 +78,48 @@ export class PlayerService {
       throw error;
     }
   }
+
+  /**
+   * Get the player leaderboard
+   * @param {number} limit - Number of top players to retrieve
+   * @returns {Promise<Array>} Leaderboard entries
+   */
+  async getLeaderboard(limit = 10) {
+    try {
+      if (typeof limit !== "number" || limit < 1 || limit > 100) {
+        throw new Error("Limit must be a number between 1 and 100");
+      }
+
+      const response = await PlayersAPI.getLeaderboard(limit);
+      return response.data.map((player) => ({
+        id: player.id,
+        username: player.username,
+        bestTime: player.best_time,
+        riddlesSolved: player.riddles_solved || 0,
+        formattedTime: this._formatTime(player.best_time),
+      }));
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Private method to format time in milliseconds
+   * @param {number} timeMs - Time in milliseconds
+   * @returns {string} Formatted time string
+   * @private
+   */
+  _formatTime(timeMs) {
+    if (!timeMs || timeMs === 0) return "No time recorded";
+
+    const seconds = Math.floor((timeMs / 1000) % 60);
+    const minutes = Math.floor((timeMs / (1000 * 60)) % 60);
+
+    if (minutes === 0) {
+      return `${seconds}s`;
+    }
+
+    return `${minutes}m ${seconds}s`;
+  }
 }
