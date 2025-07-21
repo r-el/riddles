@@ -74,4 +74,21 @@ export const PlayersAPI = {
     
     return response.json();
   },
+
+  /**
+   * Get the player leaderboard
+   * @param {number} limit - Number of top players to retrieve
+   * @returns {Promise<Object>} Leaderboard data
+   */
+  async getLeaderboard(limit = 10) {
+    const response = await fetch(getApiUrl(`/players/leaderboard?limit=${limit}`), {
+      headers: API_CONFIG.HEADERS,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch leaderboard: ${response.status}`);
+    }
+    
+    return response.json();
+  },
 };
