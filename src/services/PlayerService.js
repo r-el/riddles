@@ -137,6 +137,25 @@ export class PlayerService {
   }
 
   /**
+   * Check if a username is available
+   * @param {string} username - Username to check
+   * @returns {Promise<boolean>} True if username is available
+   */
+  async isUsernameAvailable(username) {
+    try {
+      await this.getPlayerDetails(username);
+      // If we get here, the username exists
+      return false;
+    } catch (error) {
+      if (error.message.includes("Player not found")) {
+        return true;
+      }
+      // For other errors, rethrow
+      throw error;
+    }
+  }
+
+  /**
    * Private method to format time in milliseconds
    * @param {number} timeMs - Time in milliseconds
    * @returns {string} Formatted time string
