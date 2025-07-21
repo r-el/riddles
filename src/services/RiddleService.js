@@ -175,4 +175,20 @@ export class RiddleService {
       throw error;
     }
   }
+
+  /**
+   * Get riddles filtered by difficulty level
+   * @param {string} level - Difficulty level (easy, medium, hard)
+   * @param {number} limit - Maximum number of riddles to return
+   * @returns {Promise<Array<Riddle>>} Filtered riddles
+   */
+  async getRiddlesByLevel(level, limit = 50) {
+    try {
+      const { riddles } = await this.getAllRiddles({ level, limit });
+      return riddles;
+    } catch (error) {
+      console.error("Error fetching riddles by level:", error);
+      throw error;
+    }
+  }
 }
