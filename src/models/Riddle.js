@@ -38,4 +38,16 @@ export class Riddle {
     if (!Array.isArray(items)) return [];
     return items.map((item) => Riddle.fromApiResponse(item));
   }
+
+  /**
+   * Convert to a plain object for API submission
+   * @returns {Object} Plain object representation
+   */
+  toApiSubmission() {
+    return {
+      question: this.question,
+      answer: this.answer,
+      level: this.level,
+    };
+  }
 }
