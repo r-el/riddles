@@ -87,4 +87,22 @@ export class Player {
     return `${minutes}m ${seconds}s`;
   }
 
+  /**
+   * Format the creation date for display
+   * @returns {string} Formatted date string
+   */
+  getFormattedCreatedAt() {
+    if (!this.createdAt) return "Unknown";
+
+    try {
+      return this.createdAt.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (error) {
+      return "Invalid Date";
+    }
+  }
+
 }
