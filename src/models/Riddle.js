@@ -50,4 +50,14 @@ export class Riddle {
       level: this.level,
     };
   }
+
+  /**
+   * Check if the provided answer is correct
+   * @param {string} answer - The answer to check
+   * @returns {boolean} True if the answer is correct
+   */
+  isCorrectAnswer(answer) {
+    if (!answer || typeof answer !== "string") return false;
+    return this.answer.toLowerCase().trim() === answer.toLowerCase().trim();
+  }
 }
