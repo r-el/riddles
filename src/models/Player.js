@@ -105,4 +105,31 @@ export class Player {
     }
   }
 
+  /**
+   * Validate the player data
+   * @returns {Object} Validation result with errors
+   */
+  validate() {
+    const errors = {};
+
+    if (!this.username || this.username.trim() === "") {
+      errors.username = "Username is required";
+    } else if (this.username.length < 3) {
+      errors.username = "Username must be at least 3 characters long";
+    } else if (this.username.length > 20) {
+      errors.username = "Username must be at most 20 characters long";
+    } else if (!/^[a-zA-Z0-9_]+$/.test(this.username)) {
+      errors.username = "Username can only contain letters, numbers, and underscores";
+    }
+
+    if (this.bestTime && (typeof this.bestTime !== "number" || this.bestTime < 0)) {
+      errors.bestTime = "Best time must be a positive number";
+    }
+
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors,
+    };
+  }
+
 }
