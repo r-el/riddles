@@ -127,4 +127,23 @@ export const RiddlesAPI = {
 
     return response.json();
   },
+
+  /**
+   * Load initial riddles in bulk
+   * @param {Array} riddles - Array of riddle objects
+   * @returns {Promise<Object>} Result of bulk insertion
+   */
+  async loadInitial(riddles) {
+    const response = await fetch(getApiUrl("/riddles/load-initial"), {
+      method: "POST",
+      headers: API_CONFIG.HEADERS,
+      body: JSON.stringify({ riddles }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to load initial riddles: ${response.status}`);
+    }
+
+    return response.json();
+  },
 };
