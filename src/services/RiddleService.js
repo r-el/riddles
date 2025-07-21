@@ -1,0 +1,194 @@
+import { RiddlesAPI } from "../api/riddlesApi.js";
+import { Riddle } from "../models/Riddle.js";
+
+/**
+ * Service for riddle-related business logic
+ */
+export class RiddleService {
+  /**
+   * Get all riddles with optional filtering
+   * @param {Object} options - Filter options
+   * @returns {Promise<Array<Riddle>>} Array of riddle objects
+   */
+  async getAllRiddles(options = {}) {
+    try {
+      const response = await RiddlesAPI.getAll(options);
+      return {
+        count: response.count || 0,
+        riddles: Riddle.fromApiResponseArray(response.data || []),
+      };
+    } catch (error) {
+      console.error("Error fetching all riddles:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a random riddle
+   * @returns {Promise<Riddle>} A random riddle
+   */
+  async getRandomRiddle() {
+    try {
+      const response = await RiddlesAPI.getRandom();
+      return Riddle.fromApiResponse(response.data);
+    } catch (error) {
+      console.error("Error fetching random riddle:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a riddle by ID
+   * @param {string} id - Riddle ID
+   * @returns {Promise<Riddle>} Riddle object
+   */
+  async getRiddleById(id) {
+    try {
+      const response = await RiddlesAPI.getById(id);
+      return Riddle.fromApiResponse(response.data);
+    } catch (error) {
+      console.error("Error fetching riddle by ID:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new riddle
+   * @param {Riddle|Object} riddle - Riddle to create
+   * @returns {Promise<Riddle>} Created riddle
+   */
+  async createRiddle(riddle) {
+    try {
+      // Validate riddle before creating
+      const riddleToCreate = riddle instanceof Riddle ? riddle : new Riddle(riddle);
+      const validation = riddleToCreate.validate();
+
+      if (!validation.isValid) {
+        throw new Error(`Validation failed: ${Object.values(validation.errors).join(", ")}`);
+      }
+
+      const riddleData = riddleToCreate.toApiSubmission();
+      const response = await RiddlesAPI.create(riddleData);
+      return Riddle.fromApiResponse(response.data);
+    } catch (error) {
+      console.error("Error creating riddle:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update an existing riddle
+   * @param {string} id - Riddle ID
+   * @param {Riddle|Object} updates - Fields to update
+   * @returns {Promise<Riddle>} Updated riddle
+   */
+  async updateRiddle(id, updates) {
+    try {
+      // If updates is a Riddle instance, validate it
+      if (updates instanceof Riddle) {
+        const validation = updates.validate();
+        if (!validation.isValid) {
+          throw new Error(`Validation failed: ${Object.values(validation.errors).join(", ")}`);
+        }
+      }
+
+      const updateData = updates instanceof Riddle ? updates.toApiSubmission() : updates;
+
+      const response = await RiddlesAPI.update(id, updateData);
+      return Riddle.fromApiResponse(response.data);
+    } catch (error) {
+      console.error("Error updating riddle:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a riddle
+   * @param {string} id - Riddle ID
+   * @returns {Promise<Object>} Deletion result
+   */
+  async deleteRiddle(id) {
+    try {
+      const response = await RiddlesAPI.delete(id);
+      return {
+        success: response.success,
+        deletedId: response.data?.id || id,
+      };
+    } catch (error) {
+      console.error("Error deleting riddle:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if a player's answer is correct
+   * @param {string} riddleId - Riddle ID
+   * @param {string} answer - Player's answer attempt
+   * @returns {Promise<Object>} Result with correct answer and match status
+   */
+  async checkAnswer(riddleId, answer) {
+    try {
+      const riddle = await this.getRiddleById(riddleId);
+      const isCorrect = riddle.isCorrectAnswer(answer);
+
+      return {
+        isCorrect,
+        correctAnswer: riddle.answer,
+        providedAnswer: answer,
+        riddleId: riddle.id,
+      };
+    } catch (error) {
+      console.error("Error checking answer:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Load multiple riddles at once
+   * @param {Array<Riddle|Object>} riddles - Array of riddles
+   * @returns {Promise<Object>} Result of bulk insertion
+   */
+  async loadInitialRiddles(riddles) {
+    try {
+      // Validate all riddles before loading
+      const riddlesToLoad = [];
+      const validationErrors = [];
+
+      for (let i = 0; i < riddles.length; i++) {
+        const riddle = riddles[i] instanceof Riddle ? riddles[i] : new Riddle(riddles[i]);
+        const validation = riddle.validate();
+
+        if (validation.isValid) {
+          riddlesToLoad.push(riddle.toApiSubmission());
+        } else {
+          validationErrors.push(`Riddle ${i + 1}: ${Object.values(validation.errors).join(", ")}`);
+        }
+      }
+
+      if (validationErrors.length > 0) {
+        throw new Error(`Validation errors: ${validationErrors.join("; ")}`);
+      }
+
+      return await RiddlesAPI.loadInitial(riddlesToLoad);
+    } catch (error) {
+      console.error("Error loading initial riddles:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get riddles filtered by difficulty level
+   * @param {string} level - Difficulty level (easy, medium, hard)
+   * @param {number} limit - Maximum number of riddles to return
+   * @returns {Promise<Array<Riddle>>} Filtered riddles
+   */
+  async getRiddlesByLevel(level, limit = 50) {
+    try {
+      const { riddles } = await this.getAllRiddles({ level, limit });
+      return riddles;
+    } catch (error) {
+      console.error("Error fetching riddles by level:", error);
+      throw error;
+    }
+  }
+}
