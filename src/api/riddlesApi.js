@@ -47,4 +47,23 @@ export const RiddlesAPI = {
 
     return response.json();
   },
+
+  /**
+   * Get a specific riddle by ID
+   * @param {string} id - Riddle ID
+   * @returns {Promise<Object>} Riddle data
+   */
+  async getById(id) {
+    if (!id) throw new Error("Riddle ID is required");
+
+    const response = await fetch(getApiUrl(`/riddles/${id}`), {
+      headers: API_CONFIG.HEADERS,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch riddle: ${response.status}`);
+    }
+
+    return response.json();
+  },
 };
