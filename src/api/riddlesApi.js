@@ -31,4 +31,20 @@ export const RiddlesAPI = {
 
     return response.json();
   },
+
+  /**
+   * Get a random riddle
+   * @returns {Promise<Object>} A random riddle
+   */
+  async getRandom() {
+    const response = await fetch(getApiUrl("/riddles/random"), {
+      headers: API_CONFIG.HEADERS,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch random riddle: ${response.status}`);
+    }
+
+    return response.json();
+  },
 };
