@@ -52,4 +52,27 @@ export class RiddleService {
     }
   }
 
+  /**
+   * Create a new riddle
+   * @param {Riddle|Object} riddle - Riddle to create
+   * @returns {Promise<Riddle>} Created riddle
+   */
+  async createRiddle(riddle) {
+    try {
+      // Validate riddle before creating
+      const riddleToCreate = riddle instanceof Riddle ? riddle : new Riddle(riddle);
+      const validation = riddleToCreate.validate();
+
+      if (!validation.isValid) {
+        throw new Error(`Validation failed: ${Object.values(validation.errors).join(", ")}`);
+      }
+
+      const riddleData = riddleToCreate.toApiSubmission();
+      const response = await RiddlesAPI.create(riddleData);
+      return Riddle.fromApiResponse(response.data);
+    } catch (error) {
+      console.error("Error creating riddle:", error);
+      throw error;
+    }
+  }
 }
