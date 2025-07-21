@@ -17,4 +17,14 @@ export class Player {
     this.createdAt = data.created_at ? new Date(data.created_at) : null;
   }
 
+  /**
+   * Convert a server response to a Player instance
+   * @param {Object} data - Raw player data from API
+   * @returns {Player} A new Player instance
+   */
+  static fromApiResponse(data) {
+    if (!data) return null;
+    return new Player(data);
+  }
+
 }
