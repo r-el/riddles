@@ -156,6 +156,32 @@ export class PlayerService {
   }
 
   /**
+   * Get player statistics summary
+   * @param {string} username - Player's username
+   * @returns {Promise<Object>} Player statistics
+   */
+  async getPlayerStats(username) {
+    try {
+      const player = await this.getPlayerDetails(username);
+
+      return {
+        username: player.username,
+        bestTime: player.bestTime,
+        formattedBestTime: player.getFormattedBestTime(),
+        createdAt: player.createdAt,
+        formattedCreatedAt: player.getFormattedCreatedAt(),
+        stats: player.stats || {},
+        totalSolved: player.stats?.total_solved || 0,
+        averageTime: player.stats?.avg_time || 0,
+        historyCount: player.history?.length || 0,
+      };
+    } catch (error) {
+      console.error("Error fetching player stats:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Private method to format time in milliseconds
    * @param {number} timeMs - Time in milliseconds
    * @returns {string} Formatted time string
@@ -167,9 +193,8 @@ export class PlayerService {
     const seconds = Math.floor((timeMs / 1000) % 60);
     const minutes = Math.floor((timeMs / (1000 * 60)) % 60);
 
-    if (minutes === 0) {
-      return `${seconds}s`;
-    }
+    if (minutes === 0) return `${seconds}s`;
+    
 
     return `${minutes}m ${seconds}s`;
   }
