@@ -28,4 +28,14 @@ export class Riddle {
     if (!data) return null;
     return new Riddle(data);
   }
+
+  /**
+   * Convert an array of API responses to Riddle instances
+   * @param {Array} items - Array of raw riddle data
+   * @returns {Array<Riddle>} Array of Riddle instances
+   */
+  static fromApiResponseArray(items) {
+    if (!Array.isArray(items)) return [];
+    return items.map((item) => Riddle.fromApiResponse(item));
+  }
 }
