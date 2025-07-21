@@ -101,4 +101,22 @@ export class RiddleService {
       throw error;
     }
   }
+
+  /**
+   * Delete a riddle
+   * @param {string} id - Riddle ID
+   * @returns {Promise<Object>} Deletion result
+   */
+  async deleteRiddle(id) {
+    try {
+      const response = await RiddlesAPI.delete(id);
+      return {
+        success: response.success,
+        deletedId: response.data?.id || id,
+      };
+    } catch (error) {
+      console.error("Error deleting riddle:", error);
+      throw error;
+    }
+  }
 }
