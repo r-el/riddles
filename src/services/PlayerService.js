@@ -105,6 +105,38 @@ export class PlayerService {
   }
 
   /**
+   * Find or create a player
+   * @param {string} username - Player's username
+   * @returns {Promise<Player>} Player object
+   */
+  async findOrCreatePlayer(username) {
+    try {
+      // Validate username first
+      const tempPlayer = new Player({ username });
+      const validation = tempPlayer.validate();
+
+      if (!validation.isValid) {
+        throw new Error(`Invalid username: ${Object.values(validation.errors).join(", ")}`);
+      }
+
+      // Try to fetch the player first
+      try {
+        return await this.getPlayerDetails(username);
+      } catch (error) {
+        // If player not found (404), create a new one
+        if (error.message.includes("Player not found")) {
+          return await this.createPlayer(username);
+        }
+        // Otherwise rethrow the error
+        throw error;
+      }
+    } catch (error) {
+      console.error("Error finding or creating player:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Private method to format time in milliseconds
    * @param {number} timeMs - Time in milliseconds
    * @returns {string} Formatted time string
