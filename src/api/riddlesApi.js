@@ -107,4 +107,24 @@ export const RiddlesAPI = {
 
     return response.json();
   },
+
+  /**
+   * Delete a riddle
+   * @param {string} id - Riddle ID
+   * @returns {Promise<Object>} Deletion result
+   */
+  async delete(id) {
+    if (!id) throw new Error("Riddle ID is required");
+
+    const response = await fetch(getApiUrl(`/riddles/${id}`), {
+      method: "DELETE",
+      headers: API_CONFIG.HEADERS,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete riddle: ${response.status}`);
+    }
+
+    return response.json();
+  },
 };
