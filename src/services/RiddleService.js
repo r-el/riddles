@@ -142,4 +142,37 @@ export class RiddleService {
       throw error;
     }
   }
+
+  /**
+   * Load multiple riddles at once
+   * @param {Array<Riddle|Object>} riddles - Array of riddles
+   * @returns {Promise<Object>} Result of bulk insertion
+   */
+  async loadInitialRiddles(riddles) {
+    try {
+      // Validate all riddles before loading
+      const riddlesToLoad = [];
+      const validationErrors = [];
+
+      for (let i = 0; i < riddles.length; i++) {
+        const riddle = riddles[i] instanceof Riddle ? riddles[i] : new Riddle(riddles[i]);
+        const validation = riddle.validate();
+
+        if (validation.isValid) {
+          riddlesToLoad.push(riddle.toApiSubmission());
+        } else {
+          validationErrors.push(`Riddle ${i + 1}: ${Object.values(validation.errors).join(", ")}`);
+        }
+      }
+
+      if (validationErrors.length > 0) {
+        throw new Error(`Validation errors: ${validationErrors.join("; ")}`);
+      }
+
+      return await RiddlesAPI.loadInitial(riddlesToLoad);
+    } catch (error) {
+      console.error("Error loading initial riddles:", error);
+      throw error;
+    }
+  }
 }
