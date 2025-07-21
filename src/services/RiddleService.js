@@ -75,4 +75,30 @@ export class RiddleService {
       throw error;
     }
   }
+
+  /**
+   * Update an existing riddle
+   * @param {string} id - Riddle ID
+   * @param {Riddle|Object} updates - Fields to update
+   * @returns {Promise<Riddle>} Updated riddle
+   */
+  async updateRiddle(id, updates) {
+    try {
+      // If updates is a Riddle instance, validate it
+      if (updates instanceof Riddle) {
+        const validation = updates.validate();
+        if (!validation.isValid) {
+          throw new Error(`Validation failed: ${Object.values(validation.errors).join(", ")}`);
+        }
+      }
+
+      const updateData = updates instanceof Riddle ? updates.toApiSubmission() : updates;
+
+      const response = await RiddlesAPI.update(id, updateData);
+      return Riddle.fromApiResponse(response.data);
+    } catch (error) {
+      console.error("Error updating riddle:", error);
+      throw error;
+    }
+  }
 }
