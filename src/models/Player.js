@@ -132,4 +132,14 @@ export class Player {
     };
   }
 
+  /**
+   * Check if this player has a better time than another player
+   * @param {Player} otherPlayer - Player to compare with
+   * @returns {boolean} True if this player has a better (lower) time
+   */
+  hasBetterTimeThan(otherPlayer) {
+    if (!otherPlayer || !otherPlayer.bestTime) return true;
+    if (!this.bestTime) return false;
+    return this.bestTime < otherPlayer.bestTime;
+  }
 }
