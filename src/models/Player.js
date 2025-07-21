@@ -70,4 +70,21 @@ export class Player {
     };
   }
 
+  /**
+   * Format the player's best time for display
+   * @returns {string} Formatted time string
+   */
+  getFormattedBestTime() {
+    if (!this.bestTime || this.bestTime === 0) return "No time recorded";
+
+    const seconds = Math.floor((this.bestTime / 1000) % 60);
+    const minutes = Math.floor((this.bestTime / (1000 * 60)) % 60);
+
+    if (minutes === 0) {
+      return `${seconds}s`;
+    }
+
+    return `${minutes}m ${seconds}s`;
+  }
+
 }
