@@ -49,4 +49,29 @@ export const PlayersAPI = {
     
     return response.json();
   },
+
+  /**
+   * Submit a player's score for solving a riddle
+   * @param {string} username - Player's username
+   * @param {string} riddleId - ID of the solved riddle
+   * @param {number} timeToSolve - Time taken to solve in milliseconds
+   * @returns {Promise<Object>} Submission result
+   */
+  async submitScore(username, riddleId, timeToSolve) {
+    if (!username) throw new Error('Username is required');
+    if (!riddleId) throw new Error('Riddle ID is required');
+    if (!timeToSolve && timeToSolve !== 0) throw new Error('Time to solve is required');
+    
+    const response = await fetch(getApiUrl('/players/submit-score'), {
+      method: 'POST',
+      headers: API_CONFIG.HEADERS,
+      body: JSON.stringify({ username, riddleId, timeToSolve }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to submit score: ${response.status}`);
+    }
+    
+    return response.json();
+  },
 };
