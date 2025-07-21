@@ -60,4 +60,18 @@ export class Riddle {
     if (!answer || typeof answer !== "string") return false;
     return this.answer.toLowerCase().trim() === answer.toLowerCase().trim();
   }
+
+  /**
+   * Get a formatted display string for the riddle level
+   * @returns {string} Formatted level string
+   */
+  getFormattedLevel() {
+    const levels = {
+      easy: "Easy",
+      medium: "Medium",
+      hard: "Hard",
+    };
+    return levels[this.level.toLowerCase()] || this.level;
+  }
+
 }
