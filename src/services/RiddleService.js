@@ -36,4 +36,20 @@ export class RiddleService {
       throw error;
     }
   }
+
+  /**
+   * Get a riddle by ID
+   * @param {string} id - Riddle ID
+   * @returns {Promise<Riddle>} Riddle object
+   */
+  async getRiddleById(id) {
+    try {
+      const response = await RiddlesAPI.getById(id);
+      return Riddle.fromApiResponse(response.data);
+    } catch (error) {
+      console.error("Error fetching riddle by ID:", error);
+      throw error;
+    }
+  }
+
 }
