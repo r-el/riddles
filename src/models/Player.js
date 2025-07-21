@@ -27,4 +27,27 @@ export class Player {
     return new Player(data);
   }
 
+  /**
+   * Create a player from the detailed player response
+   * @param {Object} response - API response with player, stats, and history
+   * @returns {Object} Player with enhanced properties
+   */
+  static fromDetailedResponse(response) {
+    if (!response || !response.player) return null;
+
+    const player = new Player(response.player);
+
+    // Add stats
+    player.stats = response.stats || {
+      total_solved: 0,
+      avg_time: 0,
+      best_time: 0,
+    };
+
+    // Add history
+    player.history = response.history || [];
+
+    return player;
+  }
+
 }
