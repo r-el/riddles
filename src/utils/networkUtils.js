@@ -83,4 +83,23 @@ export const networkUtils = {
       return false;
     }
   },
+
+  /**
+   * Store data in cache with optional TTL
+   */
+  cacheData(key, data, ttl = null) {
+    try {
+      const cacheItem = {
+        data,
+        timestamp: Date.now(),
+        ttl,
+      };
+
+      localStorage.setItem(key, JSON.stringify(cacheItem));
+      return true;
+    } catch (error) {
+      console.error(`Cache storage error: ${error.message}`);
+      return false;
+    }
+  },
 };
