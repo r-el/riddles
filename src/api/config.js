@@ -3,15 +3,24 @@
  * Centralized configuration for all API communications
  */
 
-// Load environment variables if available
-const BASE_URL = process.env.BASE_RIDDLES_SERVER_URL || "http://localhost:3000";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
+
+// Get base URL from env
+
+// Remove trailing slash if present for consistency
+const normalizedBaseUrl = BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
 
 export const API_CONFIG = {
-  BASE_URL,
+  BASE_URL: normalizedBaseUrl,
   HEADERS: {
     "Content-Type": "application/json",
   },
-  TIMEOUT: 10000, // 10 seconds
+  TIMEOUT: 8 * 1000, // 8 seconds timeout
+  CACHE_TTL: 1000 * 60 * 60, // Cache time-to-live: 1 hour
+  MAX_RETRIES: 3, // Maximum retry attempts
 };
 
 /**
@@ -21,7 +30,7 @@ export const API_CONFIG = {
  */
 export function getApiUrl(endpoint) {
   // Ensure endpoint starts with /
-  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   return `${API_CONFIG.BASE_URL}${normalizedEndpoint}`;
 }
 
