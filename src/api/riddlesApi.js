@@ -130,10 +130,10 @@ export const RiddlesAPI = {
 
     try {
       const response = await networkUtils.fetchWithRetry(getApiUrl(`/riddles/${id}`), {
-      method: "PUT",
-      headers: API_CONFIG.HEADERS,
-      body: JSON.stringify(updates),
-    });
+        method: "PUT",
+        headers: API_CONFIG.HEADERS,
+        body: JSON.stringify(updates),
+      });
 
       const data = await response.json();
 
@@ -156,9 +156,9 @@ export const RiddlesAPI = {
 
     try {
       const response = await networkUtils.fetchWithRetry(getApiUrl(`/riddles/${id}`), {
-      method: "DELETE",
-      headers: API_CONFIG.HEADERS,
-    });
+        method: "DELETE",
+        headers: API_CONFIG.HEADERS,
+      });
 
       const data = await response.json();
 
@@ -174,20 +174,24 @@ export const RiddlesAPI = {
 
   /**
    * Load initial riddles in bulk
-   * @param {Array} riddles - Array of riddle objects
-   * @returns {Promise<Object>} Result of bulk insertion
+   * Used for setting up default riddles in the system
    */
   async loadInitial(riddles) {
-    const response = await fetch(getApiUrl("/riddles/load-initial"), {
-      method: "POST",
-      headers: API_CONFIG.HEADERS,
-      body: JSON.stringify({ riddles }),
-    });
+    try {
+      const response = await networkUtils.fetchWithRetry(getApiUrl("/riddles/load-initial"), {
+        method: "POST",
+        headers: API_CONFIG.HEADERS,
+        body: JSON.stringify({ riddles }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Failed to load initial riddles: ${response.status}`);
+      const data = await response.json();
+
+      // Clear all cache since we loaded new data
+      networkUtils.clearAllCache();
+
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to load initial riddles: ${error.message}`);
     }
-
-    return response.json();
   },
 };
