@@ -15,6 +15,7 @@
   "dependencies": {
     "dayjs": "^1.11.13",
     "dayjs-plugin-duration": "^0.0.1-security",
+    "node-localstorage": "^3.0.5",
     "readline-sync": "^1.4.10"
   }
 }
