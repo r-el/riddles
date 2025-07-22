@@ -1,4 +1,5 @@
 import { API_CONFIG, getApiUrl } from "./config.js";
+import { networkUtils } from "../utils/networkUtils.js";
 
 /**
  * RiddlesAPI - Low level API communication for riddles endpoints
@@ -24,13 +25,13 @@ export const RiddlesAPI = {
       }
 
       // Build query params
-    const params = new URLSearchParams();
-    if (level) params.append("level", level);
-    if (limit) params.append("limit", limit);
-    if (skip) params.append("skip", skip);
+      const params = new URLSearchParams();
+      if (level) params.append("level", level);
+      if (limit) params.append("limit", limit);
+      if (skip) params.append("skip", skip);
 
-    const queryString = params.toString();
-    const endpoint = `/riddles${queryString ? "?" + queryString : ""}`;
+      const queryString = params.toString();
+      const endpoint = `/riddles${queryString ? "?" + queryString : ""}`;
 
       // Attempt server request with retry logic
       const response = await networkUtils.fetchWithRetry(
@@ -97,21 +98,25 @@ export const RiddlesAPI = {
 
   /**
    * Create a new riddle
-   * @param {Object} riddleData - The riddle to create
-   * @returns {Promise<Object>} Created riddle
+   * Clears related cache entries on success
    */
   async create(riddleData) {
-    const response = await fetch(getApiUrl("/riddles"), {
-      method: "POST",
-      headers: API_CONFIG.HEADERS,
-      body: JSON.stringify(riddleData),
-    });
+    try {
+      const response = await networkUtils.fetchWithRetry(getApiUrl("/riddles"), {
+        method: "POST",
+        headers: API_CONFIG.HEADERS,
+        body: JSON.stringify(riddleData),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Failed to create riddle: ${response.status}`);
+      const data = await response.json();
+
+      // Clear cache since we added new data
+      networkUtils.clearCache("riddles_all");
+
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to create riddle: ${error.message}`);
     }
-
-    return response.json();
   },
 
   /**
