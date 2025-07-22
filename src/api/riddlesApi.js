@@ -128,17 +128,23 @@ export const RiddlesAPI = {
   async update(id, updates) {
     if (!id) throw new Error("Riddle ID is required");
 
-    const response = await fetch(getApiUrl(`/riddles/${id}`), {
+    try {
+      const response = await networkUtils.fetchWithRetry(getApiUrl(`/riddles/${id}`), {
       method: "PUT",
       headers: API_CONFIG.HEADERS,
       body: JSON.stringify(updates),
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to update riddle: ${response.status}`);
-    }
+      const data = await response.json();
 
-    return response.json();
+      // Clear related cache entries
+      networkUtils.clearCache(`riddle_${id}`);
+      networkUtils.clearCache("riddles_all");
+
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to update riddle: ${error.message}`);
+    }
   },
 
   /**
