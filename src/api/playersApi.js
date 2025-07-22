@@ -89,18 +89,43 @@ export const PlayersAPI = {
 
   /**
    * Get the player leaderboard
-   * @param {number} limit - Number of top players to retrieve
-   * @returns {Promise<Object>} Leaderboard data
+   * Uses caching to improve performance for frequently accessed data
    */
   async getLeaderboard(limit = 10) {
-    const response = await fetch(getApiUrl(`/players/leaderboard?limit=${limit}`), {
-      headers: API_CONFIG.HEADERS,
-    });
+    const cacheKey = `leaderboard_${limit}`;
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch leaderboard: ${response.status}`);
+    try {
+      // Try cache first
+      const cached = networkUtils.getCachedData(cacheKey);
+
+      // Check server availability
+      const isServerAvailable = await networkUtils.isServerAvailable(getApiUrl("/health"));
+      if (!isServerAvailable && cached) {
+        console.log("Using cached leaderboard data (server unavailable)");
+        return cached;
+      }
+
+      // Try server request
+      const response = await networkUtils.fetchWithRetry(getApiUrl(`/players/leaderboard?limit=${limit}`), {
+        headers: API_CONFIG.HEADERS,
+      });
+
+      const data = await response.json();
+
+      // Cache with shorter TTL since leaderboard changes frequently
+      networkUtils.cacheData(cacheKey, data, 1000 * 60 * 5); // 5 minutes
+
+      return data;
+    } catch (error) {
+      // Fallback to cache if available
+      const cached = networkUtils.getCachedData(cacheKey);
+      if (cached) {
+        console.log("Using cached leaderboard due to network error");
+        return cached;
+      }
+
+      // Return empty leaderboard as last resort
+      return [];
     }
-
-    return response.json();
   },
 };
