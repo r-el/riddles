@@ -2,17 +2,28 @@ import { API_CONFIG, getApiUrl } from "./config.js";
 
 /**
  * RiddlesAPI - Low level API communication for riddles endpoints
+ * Includes network resilience with retry logic and caching
  */
 export const RiddlesAPI = {
   /**
    * Get all riddles with optional filters
-   * @param {Object} options - Filter options
-   * @param {string} options.level - Filter by difficulty level
-   * @param {number} options.limit - Number of riddles to return
-   * @param {number} options.skip - Number of riddles to skip
-   * @returns {Promise<Object>} Response data
+   * Uses caching and fallback strategies for network resilience
    */
   async getAll({ level, limit, skip } = {}) {
+    const cacheKey = `riddles_${level || "all"}_${limit || "all"}_${skip || 0}`;
+
+    try {
+      // Try cache first for quick response
+      const cached = networkUtils.getCachedData(cacheKey);
+
+      // Check server availability before attempting request
+      const isServerAvailable = await networkUtils.isServerAvailable(getApiUrl("/health"));
+      if (!isServerAvailable && cached) {
+        console.log("Using cached riddles data (server unavailable)");
+        return cached;
+      }
+
+      // Build query params
     const params = new URLSearchParams();
     if (level) params.append("level", level);
     if (limit) params.append("limit", limit);
@@ -21,15 +32,32 @@ export const RiddlesAPI = {
     const queryString = params.toString();
     const endpoint = `/riddles${queryString ? "?" + queryString : ""}`;
 
-    const response = await fetch(getApiUrl(endpoint), {
-      headers: API_CONFIG.HEADERS,
-    });
+      // Attempt server request with retry logic
+      const response = await networkUtils.fetchWithRetry(
+        getApiUrl(endpoint),
+        { headers: API_CONFIG.HEADERS },
+        API_CONFIG.MAX_RETRIES
+      );
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch riddles: ${response.status}`);
+      const data = await response.json();
+
+      // Cache successful response
+      networkUtils.cacheData(cacheKey, data, API_CONFIG.CACHE_TTL);
+
+      return data;
+    } catch (error) {
+      console.error(`Error fetching riddles: ${error.message}`);
+
+      // Fallback to cached data if available
+      const cached = networkUtils.getCachedData(cacheKey);
+      if (cached) {
+        console.log("Using cached riddles data due to network error");
+        return cached;
+      }
+
+      // Return empty structure as last resort
+      return { success: false, count: 0, data: [] };
     }
-
-    return response.json();
   },
 
   /**
