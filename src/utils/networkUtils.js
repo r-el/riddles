@@ -128,4 +128,11 @@ export const networkUtils = {
       return null;
     }
   },
+
+  /**
+   * Clear specific cache entry
+   */
+  clearCache(key) {
+    localStorage.removeItem(key);
+  },
 };
