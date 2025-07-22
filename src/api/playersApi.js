@@ -1,31 +1,38 @@
 import { API_CONFIG, getApiUrl } from "./config.js";
+import { networkUtils } from "../utils/networkUtils.js";
 
 /**
  * PlayersAPI - Low level API communication for players endpoints
+ * Includes network resilience with retry logic and caching
  */
 export const PlayersAPI = {
   /**
    * Create a new player
-   * @param {string} username - Player's username
-   * @returns {Promise<Object>} Created player data
+   * Includes proper error handling and network retry logic
    */
   async createPlayer(username) {
     if (!username) throw new Error("Username is required");
 
-    const response = await fetch(getApiUrl("/players"), {
-      method: "POST",
-      headers: API_CONFIG.HEADERS,
-      body: JSON.stringify({ username }),
-    });
+    try {
+      const response = await networkUtils.fetchWithRetry(getApiUrl("/players"), {
+        method: "POST",
+        headers: API_CONFIG.HEADERS,
+        body: JSON.stringify({ username }),
+      });
 
-    if (!response.ok) {
-      if (response.status === 409) {
+      const data = await response.json();
+
+      // Cache the new player data
+      networkUtils.cacheData(`player_${username}`, data);
+
+      return data;
+    } catch (error) {
+      // Handle specific error cases
+      if (error.message.includes("409")) {
         throw new Error("Username already exists");
       }
-      throw new Error(`Failed to create player: ${response.status}`);
+      throw new Error(`Failed to create player: ${error.message}`);
     }
-
-    return response.json();
   },
 
   /**
