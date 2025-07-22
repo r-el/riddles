@@ -149,22 +149,27 @@ export const RiddlesAPI = {
 
   /**
    * Delete a riddle
-   * @param {string} id - Riddle ID
-   * @returns {Promise<Object>} Deletion result
+   * Clears related cache entries on success
    */
   async delete(id) {
     if (!id) throw new Error("Riddle ID is required");
 
-    const response = await fetch(getApiUrl(`/riddles/${id}`), {
+    try {
+      const response = await networkUtils.fetchWithRetry(getApiUrl(`/riddles/${id}`), {
       method: "DELETE",
       headers: API_CONFIG.HEADERS,
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to delete riddle: ${response.status}`);
-    }
+      const data = await response.json();
 
-    return response.json();
+      // Clear related cache entries
+      networkUtils.clearCache(`riddle_${id}`);
+      networkUtils.clearCache("riddles_all");
+
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to delete riddle: ${error.message}`);
+    }
   },
 
   /**
