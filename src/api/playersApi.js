@@ -1,31 +1,38 @@
 import { API_CONFIG, getApiUrl } from "./config.js";
+import { networkUtils } from "../utils/networkUtils.js";
 
 /**
  * PlayersAPI - Low level API communication for players endpoints
+ * Includes network resilience with retry logic and caching
  */
 export const PlayersAPI = {
   /**
    * Create a new player
-   * @param {string} username - Player's username
-   * @returns {Promise<Object>} Created player data
+   * Includes proper error handling and network retry logic
    */
   async createPlayer(username) {
     if (!username) throw new Error("Username is required");
 
-    const response = await fetch(getApiUrl("/players"), {
-      method: "POST",
-      headers: API_CONFIG.HEADERS,
-      body: JSON.stringify({ username }),
-    });
+    try {
+      const response = await networkUtils.fetchWithRetry(getApiUrl("/players"), {
+        method: "POST",
+        headers: API_CONFIG.HEADERS,
+        body: JSON.stringify({ username }),
+      });
 
-    if (!response.ok) {
-      if (response.status === 409) {
+      const data = await response.json();
+
+      // Cache the new player data
+      networkUtils.cacheData(`player_${username}`, data);
+
+      return data;
+    } catch (error) {
+      // Handle specific error cases
+      if (error.message.includes("409")) {
         throw new Error("Username already exists");
       }
-      throw new Error(`Failed to create player: ${response.status}`);
+      throw new Error(`Failed to create player: ${error.message}`);
     }
-
-    return response.json();
   },
 
   /**
@@ -62,33 +69,63 @@ export const PlayersAPI = {
     if (!riddleId) throw new Error("Riddle ID is required");
     if (!timeToSolve && timeToSolve !== 0) throw new Error("Time to solve is required");
 
-    const response = await fetch(getApiUrl("/players/submit-score"), {
-      method: "POST",
-      headers: API_CONFIG.HEADERS,
-      body: JSON.stringify({ username, riddleId, timeToSolve }),
-    });
+    try {
+      const response = await networkUtils.fetchWithRetry(getApiUrl("/players/submit-score"), {
+        method: "POST",
+        headers: API_CONFIG.HEADERS,
+        body: JSON.stringify({ username, riddleId, timeToSolve }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Failed to submit score: ${response.status}`);
+      const data = await response.json();
+
+      // Clear player cache since their stats changed
+      networkUtils.clearCache(`player_${username}`);
+
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to submit score: ${error.message}`);
     }
-
-    return response.json();
   },
 
   /**
    * Get the player leaderboard
-   * @param {number} limit - Number of top players to retrieve
-   * @returns {Promise<Object>} Leaderboard data
+   * Uses caching to improve performance for frequently accessed data
    */
   async getLeaderboard(limit = 10) {
-    const response = await fetch(getApiUrl(`/players/leaderboard?limit=${limit}`), {
-      headers: API_CONFIG.HEADERS,
-    });
+    const cacheKey = `leaderboard_${limit}`;
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch leaderboard: ${response.status}`);
+    try {
+      // Try cache first
+      const cached = networkUtils.getCachedData(cacheKey);
+
+      // Check server availability
+      const isServerAvailable = await networkUtils.isServerAvailable(getApiUrl("/health"));
+      if (!isServerAvailable && cached) {
+        console.log("Using cached leaderboard data (server unavailable)");
+        return cached;
+      }
+
+      // Try server request
+      const response = await networkUtils.fetchWithRetry(getApiUrl(`/players/leaderboard?limit=${limit}`), {
+        headers: API_CONFIG.HEADERS,
+      });
+
+      const data = await response.json();
+
+      // Cache with shorter TTL since leaderboard changes frequently
+      networkUtils.cacheData(cacheKey, data, 1000 * 60 * 5); // 5 minutes
+
+      return data;
+    } catch (error) {
+      // Fallback to cache if available
+      const cached = networkUtils.getCachedData(cacheKey);
+      if (cached) {
+        console.log("Using cached leaderboard due to network error");
+        return cached;
+      }
+
+      // Return empty leaderboard as last resort
+      return [];
     }
-
-    return response.json();
   },
 };
