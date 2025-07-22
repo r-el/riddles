@@ -102,4 +102,30 @@ export const networkUtils = {
       return false;
     }
   },
+
+  /**
+   * Retrieve data from cache, checking TTL expiration
+   */
+  getCachedData(key) {
+    try {
+      const cached = localStorage.getItem(key);
+
+      if (!cached) {
+        return null;
+      }
+
+      const cacheItem = JSON.parse(cached);
+
+      // Check for TTL expiration
+      if (cacheItem.ttl && Date.now() - cacheItem.timestamp > cacheItem.ttl) {
+        localStorage.removeItem(key);
+        return null;
+      }
+
+      return cacheItem.data;
+    } catch (error) {
+      console.error(`Cache retrieval error: ${error.message}`);
+      return null;
+    }
+  },
 };
