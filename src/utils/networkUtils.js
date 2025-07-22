@@ -63,4 +63,24 @@ export const networkUtils = {
 
     throw lastError;
   },
+
+  /**
+   * Check if the server is available by sending a HEAD request
+   */
+  async isServerAvailable(url) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+      const response = await fetch(url, {
+        method: "HEAD",
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  },
 };
