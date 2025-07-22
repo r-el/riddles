@@ -135,4 +135,11 @@ export const networkUtils = {
   clearCache(key) {
     localStorage.removeItem(key);
   },
+
+  /**
+   * Clear all cache entries
+   */
+  clearAllCache() {
+    localStorage.clear();
+  },
 };
