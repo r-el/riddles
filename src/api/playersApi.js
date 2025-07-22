@@ -69,17 +69,22 @@ export const PlayersAPI = {
     if (!riddleId) throw new Error("Riddle ID is required");
     if (!timeToSolve && timeToSolve !== 0) throw new Error("Time to solve is required");
 
-    const response = await fetch(getApiUrl("/players/submit-score"), {
-      method: "POST",
-      headers: API_CONFIG.HEADERS,
-      body: JSON.stringify({ username, riddleId, timeToSolve }),
-    });
+    try {
+      const response = await networkUtils.fetchWithRetry(getApiUrl("/players/submit-score"), {
+        method: "POST",
+        headers: API_CONFIG.HEADERS,
+        body: JSON.stringify({ username, riddleId, timeToSolve }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Failed to submit score: ${response.status}`);
+      const data = await response.json();
+
+      // Clear player cache since their stats changed
+      networkUtils.clearCache(`player_${username}`);
+
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to submit score: ${error.message}`);
     }
-
-    return response.json();
   },
 
   /**
