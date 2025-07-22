@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Get base URL from env
+const BASE_URL = process.env.BASE_RIDDLES_SERVER_URL || "http://localhost:3000";
 
 // Remove trailing slash if present for consistency
 const normalizedBaseUrl = BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
